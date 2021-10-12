@@ -6,7 +6,7 @@
       @import url("https://acutewoof.github.io/minimalist-css-kit/styles/main.css");
       :root {
         --nord0: #18171a;
-        --nord1: #01060e;
+        --nord1: #13161a;
         --nord2: #01060e;
         --nord3: #18171a;
         --nord4: #b3b1ad;
@@ -23,7 +23,7 @@
       }
       code,
       pre {
-        background-color: var(--nord0);
+        background-color: var(--nord2);
       }
       pre {
         border-radius: 5px;
@@ -40,7 +40,7 @@
     <nav>
       <span class="nav-left"><strong>Arch Installation Guide</strong></span>
       <span class="nav-right">
-        <a href="https://sora6kq.github.io/cheesediction">Sora</a>
+        <a href="https://github.com/sora6kq">Github</a>
       </span>
     </nav>
     <div class="green card">
@@ -205,7 +205,7 @@ station &lt;device name&gt; connect &lt;SSID&gt;
       <ul>
         <li><strong>efi system :</strong> 300 MiB</li>
       </ul>
-      <h1 id="format-your-partitions">Format your partitions</h1>
+      <h2 id="format-your-partitions">Format your partitions</h2>
       <blockquote>
         <p>Replace X with respective partition number.</p>
       </blockquote>
@@ -226,7 +226,7 @@ mkswap <span class="hljs-regexp">/dev/</span>sdaX
       <pre><code>mkfs.ext4 <span class="hljs-regexp">/dev/</span>sdaX
 <span class="hljs-comment"># you can create a btrfs file system with mkfs.btrfs</span>
 </code></pre>
-      <h1 id="mount-the-filesystems">mount the filesystems</h1>
+      <h2 id="mount-the-filesystems">mount the filesystems</h2>
       <p>First mount your root partition to /mnt:</p>
       <pre><code>mount <span class="hljs-regexp">/dev/</span>root_partition <span class="hljs-regexp">/mnt</span>
 </code></pre>
@@ -241,7 +241,7 @@ mkswap <span class="hljs-regexp">/dev/</span>sdaX
       <p>Mount your EFI system (for UEFI only)</p>
       <pre><code>mount <span class="hljs-regexp">/dev/</span>efi_partition <span class="hljs-regexp">/mnt/</span>boot<span class="hljs-regexp">/efi</span>
 </code></pre>
-      <h1 id="installation">Installation</h1>
+      <h2 id="installation">Installation</h2>
       <p>
         Packages are downloaded from mirror servers. After connecting to the
         internet, <code>reflector</code> updates the mirror list, sorting them
@@ -293,7 +293,7 @@ echo <span class="hljs-comment">LANG=en_US.UTF-8 &gt;</span> /etc/<span class="h
 <span class="hljs-selector-pseudo">::1</span>         <span class="hljs-selector-tag">localhost</span>
 127<span class="hljs-selector-class">.0</span><span class="hljs-selector-class">.1</span><span class="hljs-selector-class">.1</span>   <span class="hljs-selector-tag">myhostname</span><span class="hljs-selector-class">.localdomain</span> <span class="hljs-selector-tag">myhostname</span>
 </code></pre>
-      <h1 id="install-bootloader">Install Bootloader</h1>
+      <h2 id="install-bootloader">Install Bootloader</h2>
       <ul>
         <li>UEFI</li>
       </ul>
@@ -312,7 +312,7 @@ grub-install --target=i386-pc <span class="hljs-regexp">/dev/</span>sda
 
 grub-mkconfig -o <span class="hljs-regexp">/boot/g</span>rub<span class="hljs-regexp">/grub.cfg</span>
 </code></pre>
-      <h1 id="setup-users">Setup users</h1>
+      <h2 id="setup-users">Setup users</h2>
       <h2 id="set-root-password">Set root password</h2>
       <pre><code><span class="hljs-attribute">passwd</span>
 </code></pre>
@@ -329,7 +329,7 @@ passwd yourUserName
       <p>Uncomment the following line:</p>
       <pre><code>%wheel <span class="hljs-keyword">ALL</span>=(<span class="hljs-keyword">ALL</span>) <span class="hljs-keyword">ALL</span>
 </code></pre>
-      <h1 id="useful-packages">Useful packages</h1>
+      <h2 id="useful-packages">Useful packages</h2>
       <ul>
         <li>Networking</li>
       </ul>
@@ -362,7 +362,7 @@ systemctl <span class="hljs-built_in">enable</span> NetworkManager
 
 systemctl <span class="hljs-built_in">enable</span> tlp
 </code></pre>
-      <h1 id="desktop-environment">Desktop Environment</h1>
+      <h2 id="desktop-environment">Desktop Environment</h2>
       <ul>
         <li>KDE</li>
       </ul>
@@ -378,7 +378,7 @@ systemctl <span class="hljs-built_in">enable</span> sddm
           >
         </li>
       </ul>
-      <h1 id="reboot">Reboot</h1>
+      <h2 id="reboot">Reboot</h2>
       <pre><code><span class="hljs-keyword">exit</span>
 
 umount -R /mnt
