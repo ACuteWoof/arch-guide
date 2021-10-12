@@ -1,0 +1,390 @@
+<!DOCTYPE html5>
+<html>
+  <head>
+    <title>Arch Installation Guide</title>
+    <style>
+      @import url("https://acutewoof.github.io/minimalist-css-kit/styles/main.css");
+      :root {
+        --nord0: #18171a;
+        --nord1: #13161a;
+        --nord2: #01060e;
+        --nord3: #18171a;
+        --nord4: #b3b1ad;
+        --nord5: #b3b1ad;
+        --nord6: #b3b1ad;
+        --nord8: #53bdfa;
+        --nord9: #53bdfa;
+        --nord10: #53bdfa;
+        --nord11: #ea6c73;
+        --nord12: #f9af4f;
+        --nord13: #f9af4f;
+        --nord14: #91b362;
+        --nord15: #fae994;
+      }
+      code,
+      pre {
+        background-color: var(--nord2);
+      }
+      pre {
+        border-radius: 5px;
+        padding: 5px 9px;
+      }
+      td,
+      th {
+        border: 1px solid var(--nord4);
+        padding: 9px;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <span class="nav-left"><strong>Arch Installation Guide</strong></span>
+      <span class="nav-right">
+        <a href="https://github.com/sora6kq">Github</a>
+      </span>
+    </nav>
+    <div class="green card">
+      <h1 id="arch-linux-installation-guide">Arch Linux Installation Guide</h1>
+      <p>
+        This guide assumes that you&#39;re already in the arch linux
+        installation medium.
+      </p>
+      <h2 id="set-the-keyboard-layout">Set the keyboard layout</h2>
+      <p>
+        The default keyboard layout is <strong>US</strong>. Available layouts
+        can be listed with:
+      </p>
+      <pre><code>ls /usr/share/kbd/keymaps<span class="hljs-comment">/**/</span>*<span class="hljs-selector-class">.map</span><span class="hljs-selector-class">.gz</span>
+</code></pre>
+      <p>you can set a new keymap with:</p>
+      <pre><code>loadkeys <span class="hljs-tag">&lt;<span class="hljs-name">keymap</span>&gt;</span>
+</code></pre>
+      <h2 id="check-if-you-re-booted-in-bios-or-uefi-mode">
+        Check if you&#39;re booted in BIOS or UEFI mode
+      </h2>
+      <pre><code>ls <span class="hljs-regexp">/sys/</span>firmware<span class="hljs-regexp">/efi/</span>efivars
+</code></pre>
+      <p>
+        if your system is booted into BIOS mode then this directory doesn&#39;t
+        exist.
+      </p>
+      <h2 id="connect-to-the-internet">Connect to the internet</h2>
+      <ul>
+        <li>
+          If you&#39;re using ethernet, make sure your network interface is
+          connected:
+        </li>
+      </ul>
+      <pre><code><span class="hljs-attribute">ip link</span>
+</code></pre>
+      <ul>
+        <li>If you&#39;re using wi-fi, then use iwctl:</li>
+      </ul>
+      <pre><code>iwctl
+<span class="hljs-comment"># you'll get a interactive prompt with a prefix of [iwd]#</span>
+
+<span class="hljs-comment"># list your wifi device name(s), most likely it's wlan0</span>
+device list
+
+<span class="hljs-comment"># scan for available networks</span>
+station &lt;device name&gt; scan
+
+<span class="hljs-comment"># list the scanned networks</span>
+station &lt;device name&gt; get-networks
+
+<span class="hljs-comment"># connect to a network</span>
+station &lt;device name&gt; connect &lt;SSID&gt;
+
+<span class="hljs-comment"># exit out of the interactive prompt</span>
+<span class="hljs-keyword">exit</span>
+</code></pre>
+      <ul>
+        <li>Verify the connection:</li>
+      </ul>
+      <pre><code><span class="hljs-built_in">ping</span> -c <span class="hljs-number">5</span> archlinux<span class="hljs-meta">.org</span>
+</code></pre>
+      <h2 id="update-the-system-clock">Update the system clock</h2>
+      <pre><code><span class="hljs-string">timedatectl </span><span class="hljs-built_in">set-ntp</span> <span class="hljs-string">true</span>
+</code></pre>
+      <h2 id="partition-your-disk">Partition your disk</h2>
+      <p>
+        Disks are assigned to a block devices such as /dev/sda, /dev/nvme0n1 or
+        /dev/mmcblk0. To list the disks recognized by the live system, run:
+      </p>
+      <pre><code>fdisk <span class="hljs-_">-l</span>
+</code></pre>
+      <p>
+        use <code>fdisk</code> or <code>cfdisk</code> to modify the partition
+        table.
+      </p>
+      <p>
+        <strong>example layouts</strong> ( assuming that your device name is
+        /dev/sda )
+      </p>
+      <ul>
+        <li>For BIOS with MBR:</li>
+      </ul>
+      <table cellspacing="0">
+        <thead>
+          <tr>
+            <th>partition</th>
+            <th>type</th>
+            <th>mount point</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>/dev/sda1</td>
+            <td>linux filesystem</td>
+            <td>/mnt</td>
+          </tr>
+          <tr>
+            <td>/dev/sda2</td>
+            <td>linux swap</td>
+            <td>[SWAP]</td>
+          </tr>
+        </tbody>
+      </table>
+      <ul>
+        <li>for UEFI with GPT</li>
+      </ul>
+      <table cellspacing="0">
+        <thead>
+          <tr>
+            <th style="text-align: center">partition</th>
+            <th style="text-align: center">type</th>
+            <th style="text-align: center">mount point</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>/dev/sda1</td>
+            <td>efi system</td>
+            <td>/mnt/boot/efi</td>
+          </tr>
+          <tr>
+            <td>/dev/sda2</td>
+            <td>linux filesystem</td>
+            <td>/mnt</td>
+          </tr>
+          <tr>
+            <td>/dev/sda3</td>
+            <td>linux swap</td>
+            <td>[SWAP]</td>
+          </tr>
+        </tbody>
+      </table>
+      <h3 id="suggested-size-for-swap-and-efi-system-">
+        Suggested size for swap and efi system:
+      </h3>
+      <ul>
+        <li><strong>swap:</strong></li>
+      </ul>
+      <table cellspacing="0">
+        <thead>
+          <tr>
+            <th style="text-align: center">system RAM</th>
+            <th style="text-align: center">swap size</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>&lt; 2 GB</td>
+            <td>2x the amount of RAM</td>
+          </tr>
+          <tr>
+            <td>2-8 GB</td>
+            <td>equal to the amount of RAM</td>
+          </tr>
+          <tr>
+            <td>8-64 GB</td>
+            <td>at least 4 GB</td>
+          </tr>
+        </tbody>
+      </table>
+      <ul>
+        <li><strong>efi system :</strong> 300 MiB</li>
+      </ul>
+      <h2 id="format-your-partitions">Format your partitions</h2>
+      <blockquote>
+        <p>Replace X with respective partition number.</p>
+      </blockquote>
+      <ul>
+        <li>EFI system</li>
+      </ul>
+      <pre><code>mkfs<span class="hljs-selector-class">.vfat</span> /dev/sdaX
+</code></pre>
+      <ul>
+        <li>Swap</li>
+      </ul>
+      <pre><code><span class="hljs-comment"># initialize your swap partition with mkswap</span>
+mkswap <span class="hljs-regexp">/dev/</span>sdaX
+</code></pre>
+      <ul>
+        <li>Root partition</li>
+      </ul>
+      <pre><code>mkfs.ext4 <span class="hljs-regexp">/dev/</span>sdaX
+<span class="hljs-comment"># you can create a btrfs file system with mkfs.btrfs</span>
+</code></pre>
+      <h2 id="mount-the-filesystems">mount the filesystems</h2>
+      <p>First mount your root partition to /mnt:</p>
+      <pre><code>mount <span class="hljs-regexp">/dev/</span>root_partition <span class="hljs-regexp">/mnt</span>
+</code></pre>
+      <p>Enable your swap partition:</p>
+      <pre><code>swapon <span class="hljs-regexp">/dev/</span>swap_partition
+</code></pre>
+      <p>
+        Create remaining mount points such as <em>/mnt/boot/efi</em> with mkdir:
+      </p>
+      <pre><code><span class="hljs-keyword">mkdir</span> -p /mnt/<span class="hljs-keyword">boot</span>/efi
+</code></pre>
+      <p>Mount your EFI system (for UEFI only)</p>
+      <pre><code>mount <span class="hljs-regexp">/dev/</span>efi_partition <span class="hljs-regexp">/mnt/</span>boot<span class="hljs-regexp">/efi</span>
+</code></pre>
+      <h2 id="installation">Installation</h2>
+      <p>
+        Packages are downloaded from mirror servers. After connecting to the
+        internet, <code>reflector</code> updates the mirror list, sorting them
+        by download rate. Mirrors are defined in
+        <code>/etc/pacman.d/mirrorlist</code>. You can re-order the mirror list
+        by editing the file.
+      </p>
+      <h2 id="base-installation">Base installation</h2>
+      <pre><code><span class="hljs-symbol">pacstrap</span> /mnt <span class="hljs-keyword">base </span><span class="hljs-keyword">base-devel </span>linux linux-firmware neovim nano
+</code></pre>
+      <h2 id="configure-the-system">Configure the system</h2>
+      <h3 id="fstab">fstab</h3>
+      <p>create the file system table with genfstab:</p>
+      <pre><code>genfstab -U <span class="hljs-regexp">/mnt &gt;&gt; /m</span>nt<span class="hljs-regexp">/etc/</span>fstab
+</code></pre>
+      <h3 id="chroot">chroot</h3>
+      <p>
+        change root into the newly installed system to configure some stuff:
+      </p>
+      <pre><code>arch-<span class="hljs-keyword">chroot</span> /mnt
+</code></pre>
+      <h3 id="time-zone">time-zone</h3>
+      <p>you can use tab-completion to see the regions and city</p>
+      <pre><code>ln -sf <span class="hljs-meta-keyword">/usr/</span>share<span class="hljs-meta-keyword">/zoneinfo/</span>REGION/CITY <span class="hljs-meta-keyword">/etc/</span>localtime
+
+hwclock --systohc
+</code></pre>
+      <h3 id="locale">locale</h3>
+      <p>
+        use nvim or any other text editor and uncomment
+        <code>en_US.UTF-8 UTF-8</code> and other needed languages in
+        <code>/etc/locale.gen</code>. Then generate the locales:
+      </p>
+      <pre><code>locale-gen
+
+# <span class="hljs-keyword">set</span> the <span class="hljs-comment">LANG variable</span>
+echo <span class="hljs-comment">LANG=en_US.UTF-8 &gt;</span> /etc/<span class="hljs-comment">locale.conf</span>
+</code></pre>
+      <p>set the console keymap:</p>
+      <pre><code><span class="hljs-keyword">echo</span> KEYMAP=yourKeymap &gt; /etc/vconsole.<span class="hljs-keyword">conf</span>
+</code></pre>
+      <h3 id="network-configuration">Network configuration</h3>
+      <p>set your host name:</p>
+      <pre><code><span class="hljs-keyword">echo</span> yourHostName &gt; /etc/<span class="hljs-built_in">hostname</span>
+</code></pre>
+      <p>edit your <code>/etc/hosts</code> file:</p>
+      <pre><code># <span class="hljs-selector-tag">add</span> <span class="hljs-selector-tag">these</span> <span class="hljs-selector-tag">lines</span>
+127<span class="hljs-selector-class">.0</span><span class="hljs-selector-class">.0</span><span class="hljs-selector-class">.1</span>   <span class="hljs-selector-tag">localhost</span>
+<span class="hljs-selector-pseudo">::1</span>         <span class="hljs-selector-tag">localhost</span>
+127<span class="hljs-selector-class">.0</span><span class="hljs-selector-class">.1</span><span class="hljs-selector-class">.1</span>   <span class="hljs-selector-tag">myhostname</span><span class="hljs-selector-class">.localdomain</span> <span class="hljs-selector-tag">myhostname</span>
+</code></pre>
+      <h2 id="install-bootloader">Install Bootloader</h2>
+      <ul>
+        <li>UEFI</li>
+      </ul>
+      <pre><code><span class="hljs-comment">pacman</span> <span class="hljs-literal">-</span><span class="hljs-comment">s</span> <span class="hljs-comment">grub</span> <span class="hljs-comment">efibootmgr</span> <span class="hljs-comment">os</span><span class="hljs-literal">-</span><span class="hljs-comment">prober</span>
+
+<span class="hljs-comment">grub</span><span class="hljs-literal">-</span><span class="hljs-comment">install</span> <span class="hljs-literal">-</span><span class="hljs-literal">-</span><span class="hljs-comment">target=x86_64</span><span class="hljs-literal">-</span><span class="hljs-comment">efi</span> <span class="hljs-literal">-</span><span class="hljs-literal">-</span><span class="hljs-comment">efi</span><span class="hljs-literal">-</span><span class="hljs-comment">directory=/boot/efi</span> <span class="hljs-literal">-</span><span class="hljs-literal">-</span><span class="hljs-comment">bootloader</span><span class="hljs-literal">-</span><span class="hljs-comment">id=GRUB</span>
+
+<span class="hljs-comment">grub</span><span class="hljs-literal">-</span><span class="hljs-comment">mkconfig</span> <span class="hljs-literal">-</span><span class="hljs-comment">o</span> <span class="hljs-comment">/boot/grub/grub</span><span class="hljs-string">.</span><span class="hljs-comment">cfg</span>
+</code></pre>
+      <ul>
+        <li>BIOS</li>
+      </ul>
+      <pre><code>pacman -S grub os-prober
+
+grub-install --target=i386-pc <span class="hljs-regexp">/dev/</span>sda
+
+grub-mkconfig -o <span class="hljs-regexp">/boot/g</span>rub<span class="hljs-regexp">/grub.cfg</span>
+</code></pre>
+      <h2 id="setup-users">Setup users</h2>
+      <h2 id="set-root-password">Set root password</h2>
+      <pre><code><span class="hljs-attribute">passwd</span>
+</code></pre>
+      <h2 id="add-a-user">Add a user</h2>
+      <pre><code>useradd -m -G wheel,<span class="hljs-selector-tag">audio</span>,<span class="hljs-selector-tag">video</span>,<span class="hljs-selector-tag">input</span>,kvm yourUserName
+passwd yourUserName
+</code></pre>
+      <h2 id="give-administrative-privileges-to-your-user">
+        Give administrative privileges to your user
+      </h2>
+      <pre><code><span class="hljs-attr">EDITOR</span>=nvim visudo
+<span class="hljs-comment"># you can use any other editor too, like vim, nano</span>
+</code></pre>
+      <p>Uncomment the following line:</p>
+      <pre><code>%wheel <span class="hljs-keyword">ALL</span>=(<span class="hljs-keyword">ALL</span>) <span class="hljs-keyword">ALL</span>
+</code></pre>
+      <h2 id="useful-packages">Useful packages</h2>
+      <ul>
+        <li>Networking</li>
+      </ul>
+      <pre><code>pacman -S networkmanager
+
+systemctl <span class="hljs-built_in">enable</span> NetworkManager
+</code></pre>
+      <ul>
+        <li>Bluetooth</li>
+      </ul>
+      <pre><code><span class="hljs-symbol">pacman</span> -S <span class="hljs-keyword">blueman
+</span>
+<span class="hljs-symbol">systemctl</span> enable <span class="hljs-keyword">bluetooth</span>
+</code></pre>
+      <ul>
+        <li>Sound</li>
+      </ul>
+      <pre><code>pacman -S pulseaudio-alsa pavucontrol
+<span class="hljs-selector-id">#pavucontrol-qt</span> <span class="hljs-keyword">for</span> Qt desktop
+</code></pre>
+      <ul>
+        <li>Graphics driver</li>
+      </ul>
+      <pre><code><span class="hljs-attribute">pacman -S mesa vulkan-icd-loader</span>
+</code></pre>
+      <ul>
+        <li>Power management</li>
+      </ul>
+      <pre><code>pacman -S tlp
+
+systemctl <span class="hljs-built_in">enable</span> tlp
+</code></pre>
+      <h2 id="desktop-environment">Desktop Environment</h2>
+      <ul>
+        <li>KDE</li>
+      </ul>
+      <pre><code>pacman -S xorg sddm plasma plasma-wayland-session
+
+systemctl <span class="hljs-built_in">enable</span> sddm
+</code></pre>
+      <ul>
+        <li>
+          Other desktop environments: Check out the
+          <a href="https://wiki.archlinux.org/title/Desktop_environment"
+            >Arch Wiki</a
+          >
+        </li>
+      </ul>
+      <h2 id="reboot">Reboot</h2>
+      <pre><code><span class="hljs-keyword">exit</span>
+
+umount -R /mnt
+
+reboot
+</code></pre>
+    </div>
+  </body>
+</html>
